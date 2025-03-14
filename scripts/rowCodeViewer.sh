@@ -95,7 +95,7 @@ fi
 if [[ "$SHOW_VIEW" == true ]]; then
     if [[ -d "$TARGET_PATH" ]]; then
         # Find files in the target directory
-        find "$TARGET_PATH" -type f -not -path "*/node_modules/*" -not -path "*/dist/*" -not -path "*/.git/*" \( -name "*.c" -o -name "*.h" -o -name "*.ts" -o -name "*.js" -o -name "*.tsx" -o -name "*.jsx" -o -name "*.css" -o -name "*.html" -o -name "*.json" -o -name "Makefile" \) | while read -r file; do
+        find "$TARGET_PATH" -type f -not -path "*/node_modules/*" -not -path "*/dist/*" -not -path "*/.git/*" \( -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.ts" -o -name "*.js" -o -name "*.tsx" -o -name "*.jsx" -o -name "*.css" -o -name "*.html" -o -name "*.json" -o -name "Makefile" \) | while read -r file; do
             remove_comments "$file"
         done
     elif [[ -f "$TARGET_PATH" ]]; then

@@ -1,4 +1,4 @@
-#include "core.h"
+#include "ms_readline.h"
 
 extern volatile sig_atomic_t g_signal_status;
 

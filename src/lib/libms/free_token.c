@@ -1,18 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   libms.h                                            :+:      :+:    :+:   */
+/*   free_token.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/25 14:49:25 by teando            #+#    #+#             */
-/*   Updated: 2025/03/14 15:21:17 by teando           ###   ########.fr       */
+/*   Created: 2025/03/14 15:20:49 by teando            #+#    #+#             */
+/*   Updated: 2025/03/14 15:20:57 by teando           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBMS_H
-#define LIBMS_H
+#include "libms.h"
 
-#include "core.h"
+/**
+ * @brief トークンの解放
+ *
+ * @param token 解放するトークンへのポインタ
+ */
+void free_token(void *token)
+{
+    t_lexical_token *t;
 
-#endif
+    if (!token)
+        return;
+    t = (t_lexical_token *)token;
+    if (t->value)
+        free(t->value);
+    free(t);
+}
