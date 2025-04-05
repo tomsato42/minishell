@@ -1,48 +1,40 @@
 #include "mod_lex.h"
 
-/**
- * @brief 指定されたトークンタイプと値を持つ新しいトークンを作成
- *
- * @param type トークンのタイプを指定する `t_token_type` 列挙型
- * @param value トークンに関連付ける文字列値
- * @param shell メモリ確保のために使用されるシェルの状態情報
- * @return 成功した場合は新しいトークンのポインタを返し、失敗した場合は NULL を返す
+/*
+ * トークン構造体を動的に確保し、type と value を設定して返す。
  */
-t_token_type *create_token(t_token_type type, char *value, t_shell *shell)
+t_lexical_token *create_token(t_token_type type, char *value, t_shell *shell)
 {
-	t_lexical_token *tok;
+	t_lexical_token *token = (t_lexical_token *)xmalloc(sizeof(t_lexical_token), shell);
+	if (!token)
+		return NULL;
 
-	tok = (t_lexical_token *)xmalloc(sizeof(t_lexical_token), shell);
-	if (!tok)
-		return (NULL);
-	tok->type = type;
-	tok->value = value;
-	return (tok);
+	token->type = type;
+	token->value = value;
+	return token;
 }
 
-/**
- * @brief トークンをトークンリストに追加
- *
- * @param shell トークンリストを保持する t_shell 構造体へのポインタ
- * @param tok 追加するトークンを指す t_lexical_token 構造体へのポインタ
- * @return 成功した場合は1を返し、失敗した場合は0を返す
+/*
+ * 新規トークンをリストに追加する。
+ * 成功: 1, 失敗: 0
  */
-int add_token(t_shell *shell, t_lexical_token *tok)
+int add_token(t_shell *shell, t_lexical_token *new_token)
 {
-	t_list *node;
+	if (!new_token)
+		return 0;
 
-	if (!tok)
-		return (0);
-	node = ft_lstnew(tok);
-	if (!node)
+	t_list *new_node = ft_lstnew(new_token);
+	if (!new_node)
 	{
-		free(tok->value);
-		free(tok);
-		return (0);
+		free(new_token->value);
+		free(new_token);
+		return 0;
 	}
+
 	if (!shell->token_list)
-		shell->token_list = node;
+		shell->token_list = new_node;
 	else
-		ft_lstadd_back(&shell->token_list, node);
-	return (1);
+		ft_lstadd_back(&shell->token_list, new_node);
+
+	return 1;
 }

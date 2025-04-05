@@ -6,14 +6,12 @@
 /*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 15:25:22 by teando            #+#    #+#             */
-/*   Updated: 2025/03/14 15:46:18 by teando           ###   ########.fr       */
+/*   Updated: 2025/03/15 11:50:57 by teando           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "core.h"
-#include "ms_signal.h"
-#include <fcntl.h>
-#include <limits.h>
+
 /**
  * @brief シェル構造体の初期化
  *
@@ -29,7 +27,6 @@ int shell_init(t_shell *shell, char **env, int module_flags)
 
 	// シェル構造体の初期化
 	ft_memset(shell, 0, sizeof(t_shell));
-	shell->module_flags = module_flags;
 	shell->status = E_NONE;
 	shell->interactive = isatty(STDIN_FILENO);
 	shell->exit_flag = 0;
@@ -44,33 +41,6 @@ int shell_init(t_shell *shell, char **env, int module_flags)
 	shell->stderr_backup = dup(STDERR_FILENO);
 	if (shell->stderr_backup == -1)
 		return (-1);
-
-	// モジュールレジストリの初期化
-	shell->modules = (t_module_registry *)malloc(sizeof(t_module_registry));
-	if (!shell->modules)
-		return (-1);
-	ft_memset(shell->modules, 0, sizeof(t_module_registry));
-
-	// シグナル初期化
-	if (init_signals() != 0)
-	{
-		free(shell->modules);
-		return (-1);
-	}
-
-	// カレントディレクトリの取得
-	if (getcwd(shell->cwd, PATH_MAX) == NULL)
-	{
-		free(shell->modules);
-		return (-1);
-	}
-
-	// モジュール初期化
-	if (init_modules(shell, env) != 0)
-	{
-		free(shell->modules);
-		return (-1);
-	}
 
 	return (0);
 }

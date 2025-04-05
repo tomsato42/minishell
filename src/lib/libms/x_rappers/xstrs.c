@@ -9,7 +9,7 @@
  * 2. ノード作成に失敗した場合はプログラムを終了
  *
  * @param data 新しいノードに格納する文字列データ
- * @param info エラー処理用のシェルメイン情報構造体
+ * @param shell エラー処理用のシェルメイン情報構造体
  * @return t_list* 新しいリストノードへのポインタ
  */
 t_list *xlstnew(char *data, t_shell *shell)
@@ -22,32 +22,32 @@ t_list *xlstnew(char *data, t_shell *shell)
     return (list);
 }
 
-// t_list	*xlst_from_strs(char **strs, t_info *info)
+// t_list	*xlst_from_strs(char **strs, t_shell *shell)
 // {
 // 	t_list	*list;
 
 // 	list = ft_list_from_strs(strs);
 // 	if (!list)
-// 		shell_exit(info, E_ALLOCATE);
+// 		shell_exit(shell, E_ALLOCATE);
 // 	return (list);
 // }
 
-// char	**xlst_to_strs(t_list *lst, t_info *info)
+// char	**xlst_to_strs(t_list *lst, t_shell *shell)
 // {
 // 	char	**strs;
 
 // 	strs = ft_list_to_strs(lst);
 // 	if (!strs)
-// 		shell_exit(info, E_ALLOCATE);
+// 		shell_exit(shell, E_ALLOCATE);
 // 	return (strs);
 // }
 
-// char	**xsplit(char *str, char sep, t_info *info)
+// char	**xsplit(char *str, char sep, t_shell *shell)
 // {
 // 	char	**split;
 
 // 	split = ft_split(str, sep);
 // 	if (!split)
-// 		shell_exit(info, E_ALLOCATE);
+// 		shell_exit(shell, E_ALLOCATE);
 // 	return (split);
 // }

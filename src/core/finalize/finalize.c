@@ -6,13 +6,12 @@
 /*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 15:30:10 by teando            #+#    #+#             */
-/*   Updated: 2025/03/14 15:48:43 by teando           ###   ########.fr       */
+/*   Updated: 2025/03/15 14:13:49 by teando           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "core.h"
-#include "ms_token.h"
-#include "ms_env.h"
+#include "mod_env.h"
 
 /**
  * @brief シェルのクリーンアップ処理
@@ -21,25 +20,8 @@
  */
 void shell_cleanup(t_shell *shell)
 {
-	int i;
-
 	if (!shell)
 		return;
-
-	// モジュールのクリーンアップ
-	if (shell->modules)
-	{
-		i = 0;
-		while (i < MODULE_COUNT)
-		{
-			if (shell->modules->modules[i].loaded &&
-				shell->modules->modules[i].cleanup)
-				shell->modules->modules[i].cleanup(shell);
-			i++;
-		}
-		free(shell->modules);
-		shell->modules = NULL;
-	}
 
 	// リソースの解放
 	if (shell->source_line)
@@ -81,57 +63,6 @@ void shell_cleanup(t_shell *shell)
 		close(shell->stderr_backup);
 		shell->stderr_backup = -1;
 	}
-}
-
-/**
- * @brief 環境変数の解放
- *
- * @param env_var 解放する環境変数へのポインタ
- */
-#include "ms_env.h"
-
-void free_env_var(void *env_var)
-{
-	t_env_var *var;
-
-	if (!env_var)
-		return;
-	var = (t_env_var *)env_var;
-	if (var->key)
-		free(var->key);
-	if (var->value)
-		free(var->value);
-	free(var);
-}
-
-/**
- * @brief 構文木の解放
- *
- * @param ast 解放する構文木へのポインタ
- */
-void free_ast(t_ast *ast)
-{
-	if (!ast)
-		return;
-
-	// 子ノードの解放（再帰的）
-	if (ast->left)
-		free_ast(ast->left);
-	if (ast->right)
-		free_ast(ast->right);
-
-	// データの解放（ノードタイプに応じて）
-	if (ast->args)
-	{
-		// ノードタイプに応じた適切な解放処理
-		if (ast->ntype == NT_CMD)
-			free_command(ast->args);
-		else if (ast->ntype == NT_REDIRECT)
-			free_redirect(ast->args);
-		// 他のタイプに応じた解放処理
-	}
-
-	free(ast);
 }
 
 /**

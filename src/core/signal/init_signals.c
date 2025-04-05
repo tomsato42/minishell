@@ -6,12 +6,11 @@
 /*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 15:45:12 by teando            #+#    #+#             */
-/*   Updated: 2025/03/14 22:54:37 by teando           ###   ########.fr       */
+/*   Updated: 2025/03/15 11:49:34 by teando           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ms_signal.h"
-#include "ms_readline.h"
+#include "core.h"
 
 volatile sig_atomic_t g_signal_status = 0;
 

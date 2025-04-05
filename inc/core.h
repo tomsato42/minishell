@@ -2,26 +2,21 @@
 #define CORE_H
 
 #include "ms_token.h"
-#include "ms_module.h"
+#include "ms_ast.h"
+#include "ms_readline.h"
+#include "ms_signal.h"
 #include "libft.h"
-#include <readline/history.h>
-#include <readline/readline.h>
-#include <signal.h>
+#include "libms.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <limits.h>
+#include <fcntl.h>
 
-/*
-** シグナルステータス
-*/
 extern volatile sig_atomic_t g_signal_status;
 
-/*
-** シェルステータス
-*/
 typedef enum e_status
 {
     E_NONE = 0,
@@ -37,9 +32,6 @@ typedef enum e_status
     E_SIGQUIT = 131,
 } t_status;
 
-/*
-** シェル構造体
-*/
 typedef struct s_shell
 {
     // コア状態
@@ -49,11 +41,7 @@ typedef struct s_shell
     t_status status;    // 終了ステータス
     int exit_flag;      // 終了フラグ
 
-    // モジュール管理
-    t_module_registry *modules; // モジュールレジストリ
-    int module_flags;           // モジュールフラグ
-
-    // 環境管理（ENVモジュールに移行予定）
+    // 環境管理
     t_list *env_map;    // 環境変数マップ
     char *env_spc[128]; // 環境変数特殊文字
     char cwd[PATH_MAX]; // 現在作業ディレクトリ
@@ -65,6 +53,7 @@ typedef struct s_shell
 
     // その他
     int interactive; // インタラクティブモード
+    int debug;       // デバッグモード
 } t_shell;
 
 /*
