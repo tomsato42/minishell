@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+/******************************************************************************/
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   finalize.c                                         :+:      :+:    :+:   */
@@ -6,9 +6,9 @@
 /*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 15:30:10 by teando            #+#    #+#             */
-/*   Updated: 2025/03/15 14:13:49 by teando           ###   ########.fr       */
+/*   Updated: 2025/04/10 18:58:38 by teando           ###   ########.fr       */
 /*                                                                            */
-/* ************************************************************************** */
+/******************************************************************************/
 
 #include "core.h"
 #include "mod_env.h"
@@ -18,11 +18,10 @@
  *
  * @param shell シェル構造体へのポインタ
  */
-void shell_cleanup(t_shell *shell)
+void	shell_cleanup(t_shell *shell)
 {
 	if (!shell)
-		return;
-
+		return ;
 	// リソースの解放
 	if (shell->source_line)
 	{
@@ -39,14 +38,12 @@ void shell_cleanup(t_shell *shell)
 		free_ast(shell->ast);
 		shell->ast = NULL;
 	}
-
 	// 環境変数のクリアは環境モジュールに移行予定
 	if (shell->env_map)
 	{
 		ft_lstclear(&shell->env_map, free_env_var);
 		shell->env_map = NULL;
 	}
-
 	// ファイルディスクリプタのクローズ
 	if (shell->stdin_backup != -1)
 	{
@@ -71,7 +68,7 @@ void shell_cleanup(t_shell *shell)
  * @param shell シェル構造体へのポインタ
  * @param status 終了ステータス
  */
-void shell_exit(t_shell *shell, int status)
+void	shell_exit(t_shell *shell, int status)
 {
 	shell_cleanup(shell);
 	exit(status);

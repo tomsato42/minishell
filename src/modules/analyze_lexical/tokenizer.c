@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tokenizer.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/10 14:06:12 by teando            #+#    #+#             */
+/*   Updated: 2025/04/10 14:08:51 by teando           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "mod_lex.h"
 
 /**
@@ -26,8 +38,6 @@ t_status launch_lexer(t_shell *shell)
 			shell->status = E_SYNTAX;
 		return (shell->status);
 	}
-	if (!validate_syntax(shell))
-		return (shell->status);
 	return (shell->status);
 }
 

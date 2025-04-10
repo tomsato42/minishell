@@ -11,6 +11,7 @@ outs
 objs
 .env
 minishell
+playground/
 /lib/libft/
 
 # Created by https://www.toptal.com/developers/gitignore/api/c

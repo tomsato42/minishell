@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+/******************************************************************************/
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   initialize.c                                       :+:      :+:    :+:   */
@@ -6,9 +6,9 @@
 /*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 15:25:22 by teando            #+#    #+#             */
-/*   Updated: 2025/03/15 11:50:57 by teando           ###   ########.fr       */
+/*   Updated: 2025/04/10 18:48:31 by teando           ###   ########.fr       */
 /*                                                                            */
-/* ************************************************************************** */
+/******************************************************************************/
 
 #include "core.h"
 
@@ -20,17 +20,15 @@
  * @param module_flags 有効化するモジュールのフラグ
  * @return int 成功時0、エラー時-1
  */
-int shell_init(t_shell *shell, char **env, int module_flags)
+int	shell_init(t_shell *shell, char **env, int module_flags)
 {
 	if (!shell)
 		return (-1);
-
 	// シェル構造体の初期化
-	ft_memset(shell, 0, sizeof(t_shell));
+	ft_bzero(shell, sizeof(t_shell));
 	shell->status = E_NONE;
 	shell->interactive = isatty(STDIN_FILENO);
 	shell->exit_flag = 0;
-
 	// 標準ファイルディスクリプタのバックアップ
 	shell->stdin_backup = dup(STDIN_FILENO);
 	if (shell->stdin_backup == -1)
@@ -41,6 +39,5 @@ int shell_init(t_shell *shell, char **env, int module_flags)
 	shell->stderr_backup = dup(STDERR_FILENO);
 	if (shell->stderr_backup == -1)
 		return (-1);
-
 	return (0);
 }

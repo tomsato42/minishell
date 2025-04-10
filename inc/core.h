@@ -34,23 +34,21 @@ typedef enum e_status
 
 typedef struct s_shell
 {
-    // コア状態
+    // 解析
     char *source_line;  // 入力行
     t_list *token_list; // トークンリスト
     t_ast *ast;         // 構文木
+    // status
     t_status status;    // 終了ステータス
     int exit_flag;      // 終了フラグ
-
     // 環境管理
     t_list *env_map;    // 環境変数マップ
     char *env_spc[128]; // 環境変数特殊文字
     char cwd[PATH_MAX]; // 現在作業ディレクトリ
-
     // リソース管理
     int stdin_backup;  // 標準入力バックアップ
     int stdout_backup; // 標準出力バックアップ
     int stderr_backup; // 標準エラー出力バックアップ
-
     // その他
     int interactive; // インタラクティブモード
     int debug;       // デバッグモード
