@@ -24,6 +24,7 @@ extern volatile sig_atomic_t	g_signal_status;
 typedef enum e_status
 {
 	E_NONE = 0,
+	E_SYSTEM = 3,
 	E_ALLOCATE = 1,
 	E_ENV_KEY = 1,
 	E_SYNTAX = 1,
@@ -45,9 +46,11 @@ typedef enum e_status
 
 typedef struct s_shell
 {
+	char *bin_name;		// 実行バイナリ名 (./minishell)
 	// 解析
 	char *source_line;  // 入力行
 	t_list *token_list; // トークンリスト
+	t_list *token_list_syn;
 	t_ast *ast;         // 構文木
 	// status
 	t_status status; // 終了ステータス
@@ -69,7 +72,7 @@ typedef struct s_shell
 ** シェルの初期化と終了処理
 */
 void							line_init(t_shell *shell);
-t_shell							*shell_init(char **env);
+t_shell							*shell_init(char **env, char *bin_name);
 void							shell_cleanup(t_shell *shell);
 void							shell_exit(t_shell *shell, int status);
 

@@ -6,7 +6,7 @@
 /*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/10 19:12:00 by teando            #+#    #+#             */
-/*   Updated: 2025/04/11 16:47:23 by teando           ###   ########.fr       */
+/*   Updated: 2025/04/15 16:21:30 by teando           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,9 @@ static void	shell_loop(t_shell *shell, const char *prompt)
 		status = mod_lex(shell);
 		if (status != E_NONE)
 			shell_exit(shell, status);
+		status = mod_syn(shell);
+		if (status != E_NONE)
+			printf("syntax error\n");
 	}
 }
 
@@ -39,11 +42,10 @@ int	main(int ac, char **av, char **env)
 {
 	t_shell	*shell;
 
-    (void) ac;
-    (void) av;
+	(void)ac;
 	if (init_signals() == -1)
 		return (ft_dprintf(2, "signal setup failure\n"), 1);
-	shell = shell_init(env);
+	shell = shell_init(env, av[0]);
 	shell_loop(shell, PROMPT);
 	shell_exit(shell, shell->status);
 }

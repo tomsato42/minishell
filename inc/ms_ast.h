@@ -8,17 +8,20 @@
 # define TM_TYPE 0xFF00
 # define TM_REDIR 0x1200
 # define TM_CMD 0x1100
-# define TM_OP 0x2000
+# define TM_OP 0x2000 //EOFもこれでマスクできるのに注意されたし
 # define TM_PIPE 0x3000
 # define TM_PAREN 0x5000
 
 typedef enum e_ntype
 {
+	NT_SIMPLE_CMD,
 	NT_CMD,
 	NT_PIPE,
+	NT_LIST,
 	NT_EOF,
 	NT_AND,
 	NT_OR,
+    NT_SUBSHELL,
 	NT_REDIRECT
 }					t_ntype;
 
