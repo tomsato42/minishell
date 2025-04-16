@@ -1,52 +1,51 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ms_substr.c                                        :+:      :+:    :+:   */
+/*   xstrjoin.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/11 03:13:25 by teando            #+#    #+#             */
-/*   Updated: 2025/04/13 22:36:31 by teando           ###   ########.fr       */
+/*   Created: 2025/04/16 10:38:37 by teando            #+#    #+#             */
+/*   Updated: 2025/04/16 10:44:49 by teando           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libms.h"
 
-char	*ms_substr(char const *s, unsigned int start, size_t len,
-		t_shell *shell)
+char    *xstrjoin(char const *s1, char const *s2, t_shell *shell)
 {
 	char	*str;
 
-	if (!s)
+	if (!s1 || !s2)
 		return (NULL);
-	if (start >= ft_strlen(s))
-		return (ms_strdup("", shell));
-	str = ft_substr(s, start, len);
+	str = ft_strjoin(s1, s2);
 	if (!str)
 		shell_exit(shell, E_ALLOCATE);
 	return (str);
 }
 
-char	*ms_substr_r(char const *s, char delimiter, t_shell *shell)
+char	*xstrjoin_free(char const *s1, char const *s2, t_shell *shell)
 {
 	char	*str;
 
-	if (!s)
+	if (!s1 || !s2)
 		return (NULL);
-	str = ft_substr_r(s, delimiter);
-	if (!str)
-		shell_exit(shell, E_ALLOCATE);
+	str = xstrjoin(s1, s2, shell);
+	if (s1)
+		free((void *)s1);
 	return (str);
 }
 
-char	*ms_substr_l(const char *s, char delimiter, t_shell *shell)
+char	*xstrjoin_free2(char const *s1, char const *s2, t_shell *shell)
 {
 	char	*str;
 
-	if (!s)
+	if (!s1 || !s2)
 		return (NULL);
-	str = ft_substr_l(s, delimiter);
-	if (!str)
-		shell_exit(shell, E_ALLOCATE);
+	str = xstrjoin(s1, s2, shell);
+	if (s1)
+		free((void *)s1);
+	if (s2)
+		free((void *)s2);
 	return (str);
 }
