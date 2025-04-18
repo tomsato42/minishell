@@ -6,7 +6,7 @@
 /*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 12:55:40 by teando            #+#    #+#             */
-/*   Updated: 2025/04/19 00:05:03 by teando           ###   ########.fr       */
+/*   Updated: 2025/04/19 00:59:39 by teando           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ static void	update_dp_row(const char *p, const char *s, int *prev, int *curr,
 		// Changed p[i-1] to ex->str[i-1]
 		process_row_cells(ex->str[i - 1], s, prev, curr, ex->map[i - 1]);
 		// Changed p[i-1] to ex->str[i-1]
-		ft_swap(&prev, &curr);
+		ft_swapint(&prev, &curr);
 		i++;
 	}
 }
@@ -162,8 +162,8 @@ static char	*collect_matches(DIR *dir, const char *pattern, t_shell *sh)
 	entry = readdir(dir);
 	while (entry)
 	{
-		if (ft_strncmp(entry->d_name, ".", 2) != 0 && ft_strncmp(entry->d_name,
-				"..", 3) != 0 && wildcard_match(pattern, entry->d_name, sh))
+		if (ft_strncmp(entry->d_name, ".", 1) != 0 && ft_strncmp(entry->d_name,
+				"..", 2) != 0 && wildcard_match(pattern, entry->d_name, sh))
 		{
 			buf = append_match(buf, entry->d_name, sh);
 			if (!buf)
