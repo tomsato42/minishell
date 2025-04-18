@@ -3,86 +3,254 @@
 /*                                                        :::      ::::::::   */
 /*   wildcard.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: tomsato <tomsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/15 15:45:55 by teando            #+#    #+#             */
-/*   Updated: 2025/04/15 15:48:03 by teando           ###   ########.fr       */
+/*   Created: 2025/04/17 12:55:40 by teando            #+#    #+#             */
+/*   Updated: 2025/04/18 18:38:34 by tomsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "core.h"
+#include "mod_sem.h"
+#include <stdlib.h>
 
-/*
-** ディレクトリ内のファイルをスキャンする関数
-** dir_path: スキャンするディレクトリのパス
-** pattern: マッチングパターン
-** shell: シェル構造体
-** returns: マッチしたファイル名のリスト
-*/
-t_list *scan_directory(const char *dir_path, const char *pattern, t_shell *shell)
+/* -------------------------------------------------------------------------- */
+/* Wildcard                                                                   */
+/* -------------------------------------------------------------------------- */
+
+static int	is_invalid_input(const char *p, const char *str, t_extract *ex)
 {
-    // 1. ディレクトリをオープン
-    // 2. ディレクトリ内のエントリを順に読み込む
-    // 3. 各エントリに対してパターンマッチングを実行
-    // 4. マッチしたエントリをリストに追加
-    // 5. ディレクトリをクローズして結果を返す
+	int		i;
+	int		non_star;
+	size_t	slen;
+
+	if (!p || !str || !ex)
+		return (1);
+	slen = strlen(str);
+	non_star = 0;
+	i = 0;
+	while (ex->str[i])
+	{
+		if (ex->str[i] == '*' && ex->map[i] == EX_OUT)
+			;
+		else
+			non_star++;
+		i++;
+	}
+	return (non_star > (int)slen);
 }
 
-/*
-** マッチ結果をソートする関数
-** matches: マッチしたファイル名のリスト
-** returns: ソートされたリスト
-*/
-t_list *sort_matches(t_list *matches)
+static int	*init_dp_row(int n)
 {
-    // 1. リストをソート可能な配列に変換
-    // 2. アルファベット順にソート
-    // 3. ソートされた配列を新しいリストに変換して返す
+	int	*row;
+	int	i;
+
+	row = malloc(sizeof(int) * (n + 1));
+	i = 0;
+	if (!row)
+		return (NULL);
+	while (i <= n)
+		row[i++] = 0;
+	return (row);
 }
 
-/*
-** パターンとファイル名がマッチするか確認する関数
-** pattern: パターン文字列（例: "*.c"）
-** filename: ファイル名
-** returns: マッチする場合は1、しない場合は0
-*/
-int match_pattern(const char *pattern, const char *filename)
+static void	swap_rows(int **a, int **b)
 {
-    // 1. パターンが空の場合はファイル名も空ならマッチ
-    // 2. '*'の場合は残りのパターンが残りのファイル名のどこかにマッチするか再帰的に確認
-    // 3. '?'の場合は1文字スキップして残りのパターンとファイル名をマッチング
-    // 4. 通常の文字の場合は文字が一致するか確認し、残りのパターンとファイル名をマッチング
-    // 5. エスケープ文字'\'の場合は次の文字を通常の文字として扱う
+	int	*tmp;
+
+	tmp = *a;
+	*a = *b;
+	*b = tmp;
 }
 
-/*
-** AST内のワイルドカードを展開する関数
-** ast: 展開対象のAST
-** shell: シェル構造体
-** returns: 成功時はSUCCESS、失敗時はFAILURE
-*/
-t_status expand_wildcards_in_ast(t_ast *ast, t_shell *shell)
+static void	update_first_cell(char p_char, int *prev, int *curr, char map_char)
 {
-    // 1. ASTがNULLの場合は成功を返す
-    // 2. ASTのノードタイプに応じて処理を分岐
-    //    - NT_CMD: コマンド引数内のワイルドカードを展開
-    //    - NT_PIPE, NT_LIST, NT_AND, NT_OR: 左右の子ノードを再帰的に処理
-    // 3. コマンド引数のリスト（argv）を走査
-    // 4. 各引数がワイルドカードを含む場合は展開
-    // 5. 展開結果を元の引数リストに置き換え
+	if (p_char == '*' && map_char == EX_OUT)
+		curr[0] = prev[0];
+	else
+		curr[0] = 0;
 }
 
-/*
-** ワイルドカードパターンを展開する関数
-** pattern: 展開するパターン（例: "*.c"）
-** shell: シェル構造体
-** returns: マッチしたファイル名のリスト、マッチしない場合はNULL
-*/
-t_list *expand_wildcard(const char *pattern, t_shell *shell)
+static void	process_row_cells(char p_char, const char *s, int *prev, int *curr,
+		char map_char)
 {
-    // 1. パターンにワイルドカード文字が含まれているか確認
-    // 2. パターンからディレクトリパスとファイル名パターンを分離
-    // 3. ディレクトリをスキャンしてマッチするファイルを検索
-    // 4. マッチ結果をソート
-    // 5. マッチするファイルがない場合は元のパターンを返す
+	int	j;
+	int	n;
+
+	n = strlen(s);
+	j = 1;
+	while (j <= n)
+	{
+		if (p_char == '*' && map_char == EX_OUT)
+			curr[j] = prev[j] || curr[j - 1];
+		else
+		{
+			if (p_char == s[j - 1])
+				curr[j] = prev[j - 1];
+			else
+				curr[j] = 0;
+		}
+		j++;
+	}
+}
+
+/* ワイルドカード DP 更新 */
+static void	update_dp_row(const char *p, const char *s, int *prev, int *curr,
+		t_extract *ex)
+{
+	int	m;
+	int	i;
+
+	m = strlen(ex->str); // Changed from strlen(p) to strlen(ex->str)
+	i = 1;
+	while (i <= m)
+	{
+		update_first_cell(ex->str[i - 1], prev, curr, ex->map[i - 1]);
+		// Changed p[i-1] to ex->str[i-1]
+		process_row_cells(ex->str[i - 1], s, prev, curr, ex->map[i - 1]);
+		// Changed p[i-1] to ex->str[i-1]
+		swap_rows(&prev, &curr);
+		i++;
+	}
+}
+
+int	wildcard_match(const char *p, const char *str, t_shell *shell)
+{
+	int			m;
+	int			n;
+	int			*prev;
+	int			*curr;
+	int			result;
+	t_extract	*ex;
+
+	n = ft_strlen(str);
+	ex = convert_ex((char *)p, shell);
+	if (is_invalid_input(p, str, ex))
+	{
+		if (ex)
+			return (free(ex->str), free(ex->map), free(ex), 0);
+		return (0);
+	}
+	m = ft_strlen(ex->str);
+	prev = init_dp_row(n);
+	curr = init_dp_row(n);
+	if (!prev || !curr)
+	{
+		if (ex)
+			return (free(ex->str), free(ex->map), free(ex), 0);
+		return (0);
+	}
+	prev[0] = 1;
+	update_dp_row(ex->str, str, prev, curr, ex);
+	if (m % 2 == 0)
+		result = prev[n];
+	else
+		result = curr[n];
+	free(prev), free(curr);
+	if (ex)
+		free(ex->str), free(ex->map), free(ex);
+	return (result);
+}
+
+static char	*append_match(char *buf, const char *name, t_shell *sh)
+{
+	char	*new_buf;
+
+	if (!buf)
+		return (ms_strdup(name, sh));
+	new_buf = ft_strjoin3(buf, " ", name);
+	free(buf);
+	return (new_buf);
+}
+
+static char	*collect_matches(DIR *dir, const char *pattern, t_shell *sh)
+{
+	struct dirent	*entry;
+	char			*buf;
+
+	buf = NULL;
+	entry = readdir(dir);
+	while (entry)
+	{
+		if (ft_strncmp(entry->d_name, ".", 2) != 0 && ft_strncmp(entry->d_name,
+				"..", 3) != 0 && wildcard_match(pattern, entry->d_name, sh))
+		{
+			buf = append_match(buf, entry->d_name, sh);
+			if (!buf)
+				break ;
+		}
+		else if (((ft_strncmp(entry->d_name, ".", 1) == 0
+					&& ft_strncmp(entry->d_name, "..", 1) == 0)
+				|| (ft_strncmp(entry->d_name, "..", 2) == 0
+					&& ft_strncmp(entry->d_name, "..", 2) == 0))
+			&& pattern[0] == '.' && wildcard_match(pattern, entry->d_name, sh))
+		{
+			buf = append_match(buf, entry->d_name, sh);
+			if (!buf)
+				break ;
+		}
+		entry = readdir(dir);
+	}
+	return (buf);
+}
+
+static char	*process_split_wildcard(char **split, t_shell *sh)
+{
+	char	*buf;
+	char	*tmp;
+	char	*joined;
+	int		i;
+
+	buf = NULL;
+	i = 0;
+	while (split[i])
+	{
+		tmp = handle_wildcard(split[i], sh);
+		if (!tmp)
+			continue ;
+		if (!buf)
+			buf = ms_strdup(tmp, sh);
+		else
+		{
+			joined = ft_strjoin3(buf, " ", tmp);
+			free(buf);
+			buf = joined;
+		}
+		i++;
+	}
+	return (buf);
+}
+
+static char	*process_directory_wildcard(char *in, t_shell *sh)
+{
+	DIR		*dir;
+	char	*buf;
+
+	dir = opendir(sh->cwd);
+	if (!dir)
+		return (in);
+	buf = collect_matches(dir, in, sh);
+	closedir(dir);
+	if (buf)
+		return (buf);
+	else
+		return (in);
+}
+
+char	*handle_wildcard(char *in, t_shell *sh)
+{
+	char	**split;
+	char	*buf;
+
+	if (!in || !sh)
+		return (NULL);
+	if (ft_strchr(in, ' '))
+	{
+		split = xsplit(in, ' ', sh);
+		if (!split)
+			return (NULL);
+		buf = process_split_wildcard(split, sh);
+		ft_strs_clear(split);
+		return (buf);
+	}
+	return (process_directory_wildcard(in, sh));
 }

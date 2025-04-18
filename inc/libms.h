@@ -1,4 +1,4 @@
-/******************************************************************************/
+/* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   libms.h                                            :+:      :+:    :+:   */
@@ -6,9 +6,9 @@
 /*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 14:49:25 by teando            #+#    #+#             */
-/*   Updated: 2025/04/15 19:55:51 by teando           ###   ########.fr       */
+/*   Updated: 2025/04/17 16:26:31 by teando           ###   ########.fr       */
 /*                                                                            */
-/******************************************************************************/
+/* ************************************************************************** */
 
 #ifndef LIBMS_H
 # define LIBMS_H
@@ -25,11 +25,18 @@ typedef enum e_status	t_status;
 ** ms_env - 環境変数関連の関数
 ** ============================================================================
 */
+
+// key
 int						ms_isactivekey(const char *key);
+t_status				ms_partenvarg(char *key, const char *arg);
+
+// value
+int						ms_isactivevalue(const char *value);
+char					*ms_escapevalue(const char *value, t_shell *shell);
+
 int						ms_envcmp(void *data, void *key);
 char					*ms_getenv(const char *key, t_shell *shell);
-t_status				ms_partenvarg(char *key, const char *arg);
-t_status				ms_setenv(const char *arg, t_shell *shell);
+t_status				ms_setenv(char *arg, t_shell *shell);
 t_status				ms_setenv_item(const char *key, const char *value,
 							t_shell *shell);
 t_status				ms_unset(const char *key, t_shell *shell);
@@ -57,11 +64,13 @@ int						xdup2(int oldfd, int newfd, t_shell *shell);
 ** ms_path - パス解決関連の関数
 ** ============================================================================
 */
+
+int						is_builtin(char *cmd);
 int						path_home(char path[], const char *src, int mode,
 							t_shell *shell);
 int						path_relative(char path[], const char *src, int mode,
 							t_shell *shell);
-char					*path_resolve(const char *cmd, t_shell *shell);
+int						path_resolve(char **in, t_shell *shell);
 
 /*
 ** ============================================================================
@@ -77,8 +86,9 @@ int						xpipe(int pipfds[], t_shell *shell);
 ** ms_string - 文字列操作関連の関数
 ** ============================================================================
 */
-int ms_lstiter(t_list *lst, int (*f)(void *, int, t_shell *), t_shell *shell);
-void skip_spaces(const char *line, size_t *pos);
+int						ms_lstiter(t_list *lst, int (*f)(t_list **, void *, int,
+								t_shell *), t_shell *shell);
+void					skip_spaces(const char *line, size_t *pos);
 char					*ms_strndup(const char *s, size_t n, t_shell *shell);
 char					*ms_strdup(const char *s, t_shell *shell);
 char					*ms_substr(char const *s, unsigned int start,
@@ -92,7 +102,13 @@ t_list					*xlstnew(void *data, t_shell *shell);
 t_list					*xlst_from_strs(char **strs, t_shell *shell);
 char					**xlst_to_strs(t_list *lst, t_shell *shell);
 char					**xsplit(char *str, char sep, t_shell *shell);
+char					*xstrjoin(char const *s1, char const *s2,
+							t_shell *shell);
+char					*xstrjoin3(char const *s1, char const *s2,
+							char const *s3, t_shell *shell);
 char					*xstrjoin_free(char const *s1, char const *s2,
+							t_shell *shell);
+char					*xstrjoin_free2(char const *s1, char const *s2,
 							t_shell *shell);
 
 #endif

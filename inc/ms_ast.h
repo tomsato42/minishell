@@ -17,24 +17,22 @@
 
 typedef enum e_ntype
 {
-	NT_SIMPLE_CMD,
-	NT_CMD,
-	NT_PIPE,
-	NT_LIST,
-	NT_EOF,
-	NT_AND,
-	NT_OR,
-	NT_SUBSHELL,
-	NT_REDIRECT
+	NT_SIMPLE_CMD, //x
+	NT_CMD, //o
+	NT_PIPE, //o
+	NT_LIST, //o
+	NT_EOF, //x
+	NT_AND, // o
+	NT_OR, // o
+	NT_SUBSHELL, // o
+	NT_REDIRECT // x
 }					t_ntype;
 
 typedef struct s_args
 {
-	char			path[PATH_MAX];
-	char			**cargv;
 	t_list *argv; // 引数リスト
 	t_list *redr; // リダイレクトリスト
-	int				fds[2];
+	int				fds[2]; // IN[0], OUT[1]
 	pid_t			pid;
 }					t_args;
 
