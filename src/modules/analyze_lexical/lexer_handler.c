@@ -6,7 +6,7 @@
 /*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/10 14:06:09 by teando            #+#    #+#             */
-/*   Updated: 2025/04/16 09:50:50 by teando           ###   ########.fr       */
+/*   Updated: 2025/04/22 07:56:58 by teando           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ t_token_type	get_two_char_op(const char *s, size_t *len)
  * @param c 識別する文字
  * @return 識別した演算子のトークンタイプ、識別できない場合はTT_ERROR
  */
-t_token_type	get_one_char_op(char c)
+t_token_type	get_one_char_op(int c)
 {
 	static const t_token_type	op_map[128] = {
 		['|'] = TT_PIPE,
@@ -62,8 +62,7 @@ t_token_type	get_one_char_op(char c)
 		[')'] = TT_RPAREN,
 		[';'] = TT_SEMICOLON
 	};
-
-	if (c >= 0 && op_map[(int)c] != 0)
+	if (c >= 0 && c <= 127 && op_map[(int)c] != 0)
 		return (op_map[(int)c]);
 	return (TT_ERROR);
 }
@@ -113,7 +112,7 @@ char	*read_word(const char *line, size_t *pos, t_shell *shell)
 	start = *pos;
 	while (line[*pos])
 	{
-		if (line[*pos] == '\\' && line[*pos + 1]) // バックスラッシュによるエスケープ処理
+		if (line[*pos] == '\\' && line[*pos + 1])
 		{
 			(*pos) += 2;
 			continue;
@@ -124,9 +123,16 @@ char	*read_word(const char *line, size_t *pos, t_shell *shell)
 				return (NULL);
 			continue;
 		}
-		if (line[*pos] == '#' || ft_isspace(line[*pos]) || get_two_char_op(&line[*pos],
-				NULL) != TT_ERROR || get_one_char_op(line[*pos]) != TT_ERROR)
+		if (line[*pos] == '#' || ft_isspace(line[*pos]) ||
+			get_two_char_op(&line[*pos], NULL) != TT_ERROR ||
+			(get_one_char_op(line[*pos]) != TT_ERROR &&
+			 !(line[*pos] == '(' && *pos > 0 && line[*pos - 1] == '$')))
 			break;
+		if (line[*pos] == '$' && line[*pos + 1] == '(')
+		{
+			skip_dollar_paren(line, pos);
+			continue;
+		}
 		(*pos)++;
 	}
 	return (ms_substr(line, start, (*pos - start), shell));

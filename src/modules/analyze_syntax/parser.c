@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: tomsato <tomsato@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/10 17:45:42 by teando            #+#    #+#             */
-/*   Updated: 2025/04/18 23:45:46 by teando           ###   ########.fr       */
+/*   Updated: 2025/04/21 03:32:46 by tomsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@ t_args	*args_new(t_shell *shell)
 	args = (t_args *)xmalloc(sizeof(t_args), shell);
 	args->argv = NULL;
 	args->redr = NULL;
+	args->b_argv = NULL;
+	args->b_redr = NULL;
 	args->fds[0] = -1;
 	args->fds[1] = -1;
 	args->pid = -1;
@@ -155,7 +157,6 @@ simple_cmd redirections?
 t_ast	*ast_cmd(t_list **tok_lst, t_shell *shell)
 {
 	t_ast			*node;
-	t_lexical_token	*tok;
 
 	node = ast_new(NT_CMD, NULL, NULL, shell);
 	node->args = args_new(shell);
@@ -196,8 +197,9 @@ t_ast	*ast_primary(t_list **tok_lst, t_shell *shell)
 			return (free_ast(&node), NULL);
 		}
 		ms_listshift(tok_lst);
+		return (node);
 	}
-	return (node);
+	return (NULL);
 }
 
 /* 複数のコマンドをつなげる（一個のときにある）
@@ -272,31 +274,31 @@ t_ast	*ast_and_or(t_list **tok_lst, t_shell *shell)
 t_ast	*ast_list(t_list **tok_lst, t_shell *shell)
 {
 	t_ast			*node;
-	t_ast			*right;
-	t_lexical_token	*tok;
+	// t_ast			*right;
+	// t_lexical_token	*tok;
 
 	node = ast_and_or(tok_lst, shell);
 	if (!node)
 		return (NULL);
-	tok = curr_token(tok_lst);
-	while (tok && tok->type == TT_SEMICOLON)
-	{
-		ms_listshift(tok_lst);
-		tok = curr_token(tok_lst);
-		if (tok && tok->type == TT_SEMICOLON)
-		{
-			ft_dprintf(STDERR_FILENO,
-				"minishell: syntax error near unexpected token `;;'\n");
-			return (free_ast(&node), NULL);
-		}
-		if (!tok || tok->type == TT_EOF)
-			break ;
-		right = ast_and_or(tok_lst, shell);
-		if (!right)
-			return (free_ast(&node), NULL);
-		node = ast_new(NT_LIST, node, right, shell);
-		tok = curr_token(tok_lst);
-	}
+	// tok = curr_token(tok_lst);
+	// while (tok && tok->type == TT_SEMICOLON)
+	// {
+	// 	ms_listshift(tok_lst);
+	// 	tok = curr_token(tok_lst);
+	// 	if (tok && tok->type == TT_SEMICOLON)
+	// 	{
+	// 		ft_dprintf(STDERR_FILENO,
+	// 			"minishell: syntax error near unexpected token `;;'\n");
+	// 		return (free_ast(&node), NULL);
+	// 	}
+	// 	if (!tok || tok->type == TT_EOF)
+	// 		break ;
+	// 	right = ast_and_or(tok_lst, shell);
+	// 	if (!right)
+	// 		return (free_ast(&node), NULL);
+	// 	node = ast_new(NT_LIST, node, right, shell);
+	// 	tok = curr_token(tok_lst);
+	// }
 	return (node);
 }
 

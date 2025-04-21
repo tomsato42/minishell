@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   wildcard.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: tomsato <tomsato@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 12:55:40 by teando            #+#    #+#             */
-/*   Updated: 2025/04/19 00:59:39 by teando           ###   ########.fr       */
+/*   Updated: 2025/04/21 04:10:41 by tomsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,7 @@ static void	update_dp_row(const char *p, const char *s, int *prev, int *curr,
 	int	m;
 	int	i;
 
+	(void)p;
 	m = ft_strlen(ex->str); // Changed from strlen(p) to strlen(ex->str)
 	i = 1;
 	while (i <= m)
@@ -118,7 +119,8 @@ int	wildcard_match(const char *p, const char *str, t_shell *shell)
 	if (is_invalid_input(p, str, ex))
 	{
 		if (ex)
-			return (free(ex->str), free(ex->map), free(ex), 0);
+			return (xfree((void **)&ex->str), xfree((void **)&ex->map),
+				xfree((void **)&ex), 0);
 		return (0);
 	}
 	m = ft_strlen(ex->str);
@@ -127,7 +129,8 @@ int	wildcard_match(const char *p, const char *str, t_shell *shell)
 	if (!prev || !curr)
 	{
 		if (ex)
-			return (free(ex->str), free(ex->map), free(ex), 0);
+			return (xfree((void **)&ex->str), xfree((void **)&ex->map),
+				xfree((void **)&ex), 0);
 		return (0);
 	}
 	prev[0] = 1;
@@ -136,9 +139,9 @@ int	wildcard_match(const char *p, const char *str, t_shell *shell)
 		result = prev[n];
 	else
 		result = curr[n];
-	free(prev), free(curr);
+	xfree((void **)&prev), xfree((void **)&curr);
 	if (ex)
-		free(ex->str), free(ex->map), free(ex);
+		xfree((void **)&ex->str), xfree((void **)&ex->map), xfree((void **)&ex);
 	return (result);
 }
 
@@ -149,7 +152,7 @@ static char	*append_match(char *buf, const char *name, t_shell *sh)
 	if (!buf)
 		return (ms_strdup(name, sh));
 	new_buf = ft_strjoin3(buf, " ", name);
-	free(buf);
+	xfree((void **)&buf);
 	return (new_buf);
 }
 
@@ -203,7 +206,7 @@ static char	*process_split_wildcard(char **split, t_shell *sh)
 		else
 		{
 			joined = ft_strjoin3(buf, " ", tmp);
-			free(buf);
+			xfree((void **)&buf);
 			buf = joined;
 		}
 		i++;
@@ -218,13 +221,15 @@ static char	*process_directory_wildcard(char *in, t_shell *sh)
 
 	dir = opendir(sh->cwd);
 	if (!dir)
-		return (ms_strdup(in, sh));
+		return (in);
 	buf = collect_matches(dir, in, sh);
 	closedir(dir);
 	if (buf)
+	{
+		xfree((void **)&in);
 		return (buf);
-	else
-		return (ms_strdup(in, sh));
+	}
+	return (in);
 }
 
 char	*handle_wildcard(char *in, t_shell *sh)
@@ -236,7 +241,7 @@ char	*handle_wildcard(char *in, t_shell *sh)
 		return (NULL);
 	if (ft_strchr(in, ' '))
 	{
-		split = xsplit(in, ' ', sh);
+		split = xsplit(ms_strdup(in, sh), ' ', sh);
 		if (!split)
 			return (NULL);
 		buf = process_split_wildcard(split, sh);

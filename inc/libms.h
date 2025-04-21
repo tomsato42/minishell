@@ -6,7 +6,7 @@
 /*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 14:49:25 by teando            #+#    #+#             */
-/*   Updated: 2025/04/18 23:59:17 by teando           ###   ########.fr       */
+/*   Updated: 2025/04/22 07:02:48 by teando           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,24 @@
 typedef struct s_shell	t_shell;
 typedef enum e_status	t_status;
 typedef struct s_ast	t_ast;
+
+/*
+** ============================================================================
+** ms_gc - ガベージコレクション関連の関数
+** ============================================================================
+*/
+
+void					*xmalloc_gcshell(size_t size, t_shell *shell);
+void					*xmalloc_gcline(size_t size, t_shell *shell);
+char					*ms_strndup_gcshell(const char *s, size_t n,
+							t_shell *sh);
+char					*ms_strdup_gcshell(const char *s, t_shell *sh);
+char					*ms_substr_gcshell(char const *s, unsigned int start,
+							size_t len, t_shell *sh);
+char					*ms_substr_r_gcshell(char const *s, char delimiter,
+							t_shell *sh);
+char					*ms_substr_l_gcshell(const char *s, char delimiter,
+							t_shell *sh);
 
 /*
 ** ============================================================================
@@ -61,7 +79,7 @@ void					free_ast(t_ast **ast);
 */
 int						xclose(int *fd);
 int						xdup(int oldfd, t_shell *shell);
-int						xdup2(int oldfd, int newfd, t_shell *shell);
+int						xdup2(int *oldfd, int newfd, t_shell *shell);
 
 /*
 ** ============================================================================
@@ -92,10 +110,9 @@ int						xpipe(int pipfds[], t_shell *shell);
 ** ============================================================================
 */
 int						is_quoted(const char *s);
-char					*trim_valid_quotes(const char *s, t_shell *sh);
-int						ms_lstiter(t_list *lst, int (*f)(t_list **, void *, int,
-								t_shell *), t_shell *shell);
+void					ms_put_ascii(t_shell *sh);
 void					skip_spaces(const char *line, size_t *pos);
+void					skip_dollar_paren(const char *line, size_t *pos);
 char					*ms_strndup(const char *s, size_t n, t_shell *shell);
 char					*ms_strdup(const char *s, t_shell *shell);
 char					*ms_substr(char const *s, unsigned int start,
@@ -104,10 +121,13 @@ char					*ms_substr_r(char const *s, char delimiter,
 							t_shell *shell);
 char					*ms_substr_l(char const *s, char delimiter,
 							t_shell *shell);
+char					*trim_valid_quotes(const char *s, t_shell *sh);
 char					*xitoa(int n, t_shell *shell);
 char					**xsplit(char *str, char sep, t_shell *shell);
-char					*xstrjoin(char const *s1, char const *s2,
+char						*xstrjoin(char const *s1, char const *s2,
 							t_shell *shell);
+size_t					ms_path_cleancpy(char *dst, const char *src, size_t siz);
+size_t					ms_path_cleancat(char *dst, const char *s, size_t siz);
 char					*xstrjoin3(char const *s1, char const *s2,
 							char const *s3, t_shell *shell);
 char					*xstrjoin_free(char const *s1, char const *s2,
@@ -121,8 +141,12 @@ char					*xstrjoin_free2(char const *s1, char const *s2,
 ** ============================================================================
 */
 void					*ms_listshift(t_list **list);
+int						ms_lstiter(t_list *lst, int (*f)(t_list **, void *, int,
+								t_shell *), t_shell *shell);
 t_list					*xlstnew(void *data, t_shell *shell);
 t_list					*xlst_from_strs(char **strs, t_shell *shell);
 char					**xlst_to_strs(t_list *lst, t_shell *shell);
+t_list					*ms_lstcopy(t_list *lst, void (*del)(void *),
+							t_shell *shell);
 
 #endif

@@ -6,25 +6,16 @@
 /*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/10 16:58:14 by teando            #+#    #+#             */
-/*   Updated: 2025/04/14 06:48:44 by teando           ###   ########.fr       */
+/*   Updated: 2025/04/21 22:25:00 by teando           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "builtin_cmds.h"
 
-/**
- * @brief カレントディレクトリのパスを表示する（pwdコマンド）
- * 
- * この関数は以下の処理を行います：
- * 1. シェル情報構造体からカレントディレクトリのパスを取得
- * 2. パスを標準出力に出力
- * 3. 改行を出力
- * 
- * @param shell シェル情報構造体
- * @return t_status 常にE_NONE（成功）を返す
- */
-t_status	pwd(t_shell *shell)
+t_status	__pwd(int argc, char **argv, t_shell *sh)
 {
-	printf("%s\n", shell->cwd);
-	return (E_NONE);
+	(void)argv;
+	if (argc != 1)
+		return (ft_dprintf(2, "minishell: pwd: too many arguments\n"), 1);
+	return (printf("%s\n", sh->cwd), 0);
 }

@@ -6,7 +6,7 @@
 /*   By: tomsato <tomsato@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 13:43:38 by tomsato           #+#    #+#             */
-/*   Updated: 2025/04/19 00:30:48 by tomsato          ###   ########.fr       */
+/*   Updated: 2025/04/20 21:07:00 by tomsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ static void	init_map(char *map, size_t len)
 
 static void	set_quote_map(char *str, char *map, int start, int end)
 {
+	(void)str;
 	for (int i = start; i <= end; i++)
 		map[i] = EX_IN;
 }
@@ -93,7 +94,7 @@ static t_extract	*extract_inner(char *str, char *map, t_shell *shell)
 	res->str = malloc(len + 1);
 	res->map = malloc(len + 1);
 	if (!res->str || !res->map)
-		return (free(res->str), free(res->map), free(res), NULL);
+		return (xfree((void **)&res->str), xfree((void **)&res->map), xfree((void **)&res), NULL);
 	while (str[i])
 	{
 		if (!in && (str[i] == '\'' || str[i] == '\"'))
@@ -124,7 +125,7 @@ t_extract	*convert_ex(char *str, t_shell *shell)
 	init_map(map, len);
 	mark_quotes(str, map);
 	ex = extract_inner(str, map, shell);
-	free(map);
+	xfree((void **)&map);
 	return (ex);
 }
 
@@ -134,12 +135,12 @@ char	*replace_with_unquoted(char *str, t_shell *shell)
 	char *result;
 
 	if (!str)
-		return (NULL);
+		return (ms_strdup("", shell));
 	ex = convert_ex(str, shell);
 	if (!ex)
-		return (NULL);
+		return (ms_strdup("", shell));
 	result = ex->str;
-	free(ex->map);
-	free(ex);
+	xfree((void **)&ex->map);
+	xfree((void **)&ex);
 	return (result);
 }
