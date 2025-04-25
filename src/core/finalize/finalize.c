@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   finalize.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tomsato <tomsato@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/14 15:30:10 by teando            #+#    #+#             */
-/*   Updated: 2025/04/23 21:54:43 by tomsato          ###   ########.fr       */
+/*   Updated: 2025/04/25 13:00:00 by teando           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void	shell_cleanup(t_shell *shell)
 		return ;
 	line_init(shell);
 	ft_lstclear(&shell->env_map, free);
-	ft_lstclear(&shell->gcsh, free);
+	ft_gc_destroy(&shell->gcli);
 	free_env_spc(shell->env_spc);
 	if (shell->stdin_backup != -1)
 		xclose(&shell->stdin_backup);
@@ -67,7 +67,7 @@ void	shell_cleanup(t_shell *shell)
 void	shell_exit(t_shell *shell, int status)
 {
 	if (shell->debug & DEBUG_CORE)
-		ft_dprintf(STDERR_FILENO, "[SHELL_EXIT_STATUS]: %d\n", status);
+		put_sh_final(shell, status);
 	/*statusによっては終了までする必要ないときがある気がする*/
 	shell_cleanup(shell);
 	xfree((void **)&shell);

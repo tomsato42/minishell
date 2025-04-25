@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   semantic.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tomsato <tomsato@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/17 10:11:39 by teando            #+#    #+#             */
-/*   Updated: 2025/04/24 17:58:39 by tomsato          ###   ########.fr       */
+/*   Updated: 2025/04/25 13:09:53 by teando           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@ size_t	extract_varname(char **buf, char *in, t_shell *sh)
 	char	*val;
 
 	klen = 1;
+	if (sh->debug & DEBUG_SEM)
+		ft_dprintf(STDERR_FILENO, "[EXPAND_VAR]: %s [POINTER]: %p\n", in, in);
 	while (ft_isalnum_under(in[klen]))
 		++klen;
 	key = ms_substr(in, 0, klen, sh);
@@ -53,10 +55,7 @@ size_t	extract_varname(char **buf, char *in, t_shell *sh)
 	if (key && key[0] && key[1] == '\0')
 		*buf = xstrjoin_free(*buf, val, sh);
 	else
-	{
-		*buf = xstrjoin_free(*buf, val, sh);
-		xfree((void **)&val);
-	}
+		*buf = xstrjoin_free2(*buf, val, sh);
 	xfree((void **)&key);
 	return (klen);
 }
@@ -78,31 +77,13 @@ char	*handle_env(char *in, t_shell *sh)
 	while (*in)
 	{
 		i = 0;
-		while (check_qs(in[i], &s) && ((!ft_isbackslash(in[i]) && in[i] != '$')
-				|| s.quote_state == QS_SINGLE))
+		while (check_qs(in[i], &s) && ((in[i] == '$' && in[i + 1] == '(')
+				|| in[i] != '$' || s.quote_state == QS_SINGLE))
 			++i;
 		s.buf = xstrjoin_free2(s.buf, ms_substr(in, 0, i, sh), sh);
 		in += i;
-		if (*in == '$' && in[1] == '(' && s.quote_state != QS_SINGLE)
-		{
-			s.buf = xstrjoin_free2(s.buf, ms_substr(in, 0, 2, sh), sh);
-			in += 2;
-		}
-		else if (*in == '$' && s.quote_state != QS_SINGLE)
+		if (*in == '$')
 			in += extract_varname(&s.buf, in + 1, sh) + 1;
-		else if (ft_isbackslash(*in) && s.quote_state != QS_SINGLE)
-		{
-			if (ft_isbackslash(in[1]) || (in[1] == '*') || (in[1] == '\'')
-					|| (in[1] == '"'))
-				s.buf = xstrjoin_free2(s.buf, ms_substr(in, 0, 2, sh), sh);
-			else
-			{
-				s.buf = xstrjoin_free2(s.buf, ms_substr(in + 1, 0, 1, sh), sh);
-				in += 2;
-			}
-		}
-		else if (*in)
-			check_qs(*in++, &s);
 	}
 	return (s.buf);
 }
@@ -204,7 +185,7 @@ static char	*read_heredoc_body(char *delim, int quoted, t_shell *sh)
 	}
 	if (quoted)
 	{
-		q_body = ft_strjoin3("\'", body, "\'");
+		q_body = xstrjoin3("\'", body, "\'", sh);
 		return (xfree((void **)&body), q_body);
 	}
 	return (body);
@@ -266,75 +247,43 @@ int	add_to_list(t_list **list, char **words, t_shell *sh)
 	return (0);
 }
 
-/**
- * @brief トークンの値をクォート処理して更新する
- *
- * @param data トークンデータ
- * @param val 処理する文字列
- * @param sh シェル情報
- * @return char* 処理後の文字列
- */
-static char	*update_token_value(t_lexical_token *data, char *val, t_shell *sh)
+static int	process_simple_token(t_lexical_token *data, char *val, int idx,
+		t_shell *sh)
 {
 	char	*trimmed;
 
+	if (sh->debug & DEBUG_SEM)
+		ft_dprintf(STDERR_FILENO, "[proc_simple_token]: %s [POINTER]: %p\n",
+			val, val);
 	trimmed = trim_valid_quotes(val, sh);
 	if (trimmed != val)
 		xfree((void **)&val);
 	xfree((void **)&data->value);
 	data->value = trimmed;
-	return (trimmed);
-}
-
-/**
- * @brief 空白を含まない文字列を処理する
- *
- * @param data トークンデータ
- * @param value 処理する文字列
- * @param idx 引数の位置（0はコマンド）
- * @param sh シェル情報
- * @return int 成功時0、失敗時1
- */
-static int	process_simple_token(t_lexical_token *data, char *val, int idx,
-		t_shell *sh)
-{
-	if (sh->debug & DEBUG_SEM)
-		printf("[process_simple_token] value: %s\n", val);
-	update_token_value(data, val, sh);
 	if (idx == 0)
 		return (path_resolve(&data->value, sh));
 	return (E_NONE);
 }
 
-
-/**
- * @brief 空白を含む文字列を分割して処理する
- *
- * @param list トークンリスト
- * @param data トークンデータ
- * @param value 処理する文字列
- * @param idx 引数���位置���0�����コマン���）
- * @param sh シェル情報
- * @return int 成功時0、失敗時1
- */
-static int	process_split_token(t_list **list, char *value, int idx,
-		t_shell *sh)
+static int	process_split_token(t_list **list, char *val, int idx, t_shell *sh)
 {
 	char			**words;
 	t_lexical_token	*data;
 	int				status;
 
 	if (!list || !*list)
-		return (xfree((void **)&value), 1);
+		return (xfree((void **)&val), 1);
+	(void)idx;
 	data = (t_lexical_token *)(*list)->data;
 	if (!data)
-		return (xfree((void **)&value), 1);
+		return (xfree((void **)&val), 1);
 	if (sh->debug & DEBUG_SEM)
-		printf("[process_split_token] value: %s\n", value);
-	words = split_with_quote(value, sh);
+		ft_dprintf(STDERR_FILENO, "[PROC_SPLIT_TOKEN]: %s [POINTER]: %p\n", val,
+			val);
+	words = split_with_quote(val, sh);
+	xfree((void **)&val);
 	if (!words || !words[0])
-		return (xfree((void **)&value), ft_strs_clear(words), 1);
-	xfree((void **)&value);
+		return (ft_strs_clear(words), 1);
 	xfree((void **)&data->value);
 	data->value = ms_strdup(words[0], sh);
 	if (add_to_list(list, words, sh))
@@ -345,8 +294,7 @@ static int	process_split_token(t_list **list, char *value, int idx,
 		if (status != E_NONE)
 			return (ft_strs_clear(words), status);
 	}
-	ft_strs_clear(words);
-	return (0);
+	return (ft_strs_clear(words), 0);
 }
 
 /**
