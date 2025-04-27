@@ -1,33 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ms_lstiter.c                                       :+:      :+:    :+:   */
+/*   proc_quote.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tomsato <tomsato@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/15 18:49:43 by tomsato           #+#    #+#             */
-/*   Updated: 2025/04/25 21:05:49 by tomsato          ###   ########.fr       */
+/*   Created: 2025/04/26 20:03:19 by tomsato           #+#    #+#             */
+/*   Updated: 2025/04/26 21:44:53 by tomsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libms.h"
-#include <stddef.h>
+#include "mod_sem.h"
 
-int	ms_lstiter(t_list *lst, int (*f)(t_list **, int, t_shell *), t_shell *shell)
+int	proc_quote(t_list **lst, int index, t_shell *sh)
 {
-	int	ret;
-	int	idx;
+	t_lexical_token *tok;
+	char *tmp;
 
-	idx = 0;
-	if (!f)
-		return (E_GENERAL);
-	while (lst)
-	{
-		ret = f(&lst, idx, shell);
-		if (ret != E_NONE)
-			return (ret);
-		lst = lst->next;
-		idx++;
-	}
-	return (E_NONE);
+	(void)index;
+	tok = (*lst)->data;
+	tmp = replace_with_unquoted(tok->value, sh);
+	xfree((void **)&tok->value);
+	tok->value = ms_strdup(tmp, sh);
+	// ft_gc_untrack(sh->gcli, (void **)&tok->value);
+	return (0);
 }

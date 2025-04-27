@@ -6,7 +6,7 @@
 /*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 14:49:25 by teando            #+#    #+#             */
-/*   Updated: 2025/04/25 12:36:23 by teando           ###   ########.fr       */
+/*   Updated: 2025/04/27 08:27:21 by teando           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,15 @@ typedef struct s_ast	t_ast;
 ** ============================================================================
 */
 
+void					xfree_gc(void **p, t_shell *sh);
 void					*xmalloc_gcline(size_t size, t_shell *shell);
-char					*ms_strjoin_gcli(char const *s1, char const *s2, t_shell *sh);
-char					*ms_strjoin_gcli_f2(char const *s1, char const *s2, t_shell *sh);
+t_list					*xlstnew_gcli(void *data, t_shell *sh);
+char					*ms_strjoin_gcli(char const *s1, char const *s2,
+							t_shell *sh);
+char					*ms_strjoin3_gcli(char const *s1, char const *s2,
+							char const *s3, t_shell *sh);
+char					*ms_strjoin_gcli_f2(char const *s1, char const *s2,
+							t_shell *sh);
 char					*ms_strndup_gcli(const char *s, size_t n, t_shell *sh);
 char					*ms_strdup_gcli(const char *s, t_shell *sh);
 char					*ms_substr_gcli(char const *s, unsigned int start,
@@ -144,7 +150,7 @@ char					*xstrjoin_free2(char const *s1, char const *s2,
 ** ============================================================================
 */
 void					*ms_listshift(t_list **list);
-int						ms_lstiter(t_list *lst, int (*f)(t_list **, void *, int,
+int						ms_lstiter(t_list *lst, int (*f)(t_list **, int,
 								t_shell *), t_shell *shell);
 t_list					*xlstnew(void *data, t_shell *shell);
 t_list					*xlst_from_strs(char **strs, t_shell *shell);

@@ -1,33 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ms_lstiter.c                                       :+:      :+:    :+:   */
+/*   del_nul_node.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tomsato <tomsato@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/15 18:49:43 by tomsato           #+#    #+#             */
-/*   Updated: 2025/04/25 21:05:49 by tomsato          ###   ########.fr       */
+/*   Created: 2025/04/26 20:00:28 by tomsato           #+#    #+#             */
+/*   Updated: 2025/04/26 20:04:56 by tomsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libms.h"
-#include <stddef.h>
+#include "mod_sem.h"
 
-int	ms_lstiter(t_list *lst, int (*f)(t_list **, int, t_shell *), t_shell *shell)
+void	del_nul_node(t_list **list)
 {
-	int	ret;
-	int	idx;
+	t_list			*prev;
+	t_list			*cur;
+	t_lexical_token	*tok;
 
-	idx = 0;
-	if (!f)
-		return (E_GENERAL);
-	while (lst)
+	prev = NULL;
+	cur = *list;
+	while (cur)
 	{
-		ret = f(&lst, idx, shell);
-		if (ret != E_NONE)
-			return (ret);
-		lst = lst->next;
-		idx++;
+		tok = (t_lexical_token *)cur->data;
+		if (tok->value && tok->value[0] == '\0')
+			break ;
+		prev = cur;
+		cur = cur->next;
 	}
-	return (E_NONE);
+	if (!cur)
+		return ;
+	if (prev)
+		prev->next = cur->next;
+	else
+		*list = cur->next;
+	ft_lstdelone(cur, free_token);
 }

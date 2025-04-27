@@ -6,7 +6,7 @@
 /*   By: tomsato <tomsato@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/18 22:33:11 by teando            #+#    #+#             */
-/*   Updated: 2025/04/24 02:00:59 by tomsato          ###   ########.fr       */
+/*   Updated: 2025/04/27 17:31:20 by tomsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,11 @@ int	exe_cmd(t_ast *node, t_shell *sh)
 	argv = NULL;
 	if (!node || node->ntype != NT_CMD)
 		return (1);
+	status = ms_lstiter(node->args->argv, proc_exec_path, sh);
+	if (status)
+		return (status);
+	if (sh->debug & DEBUG_SEM)
+		debug_print_sem(node, sh);
 	status = prepare_cmd_args(node, &argv, &flag, sh);
 	if (flag)
 		return (status);
@@ -251,7 +256,7 @@ static void	update_shell_status(int status, t_shell *sh)
 	sh->status = status;
 	xfree((void **)&sh->env_spc['?']);
 	sh->env_spc['?'] = xitoa(status, sh);
-	mod_sem(sh);
+	mod_sem(sh,0);
 }
 
 int	exe_bool(t_ast *node, t_shell *sh)
@@ -260,7 +265,7 @@ int	exe_bool(t_ast *node, t_shell *sh)
 	int	run_right;
 
 	if (sh->env_updated)
-		mod_sem(sh);
+		mod_sem(sh,0);
 	sh->env_updated = 0;
 	st_left = exe_run(node->left, sh);
 	update_shell_status(st_left, sh);
@@ -274,7 +279,7 @@ int	exe_bool(t_ast *node, t_shell *sh)
 	if (run_right)
 	{
 		if (sh->env_updated)
-			mod_sem(sh);
+			mod_sem(sh,0);
 		sh->env_updated = 0;
 		return (exe_run(node->right, sh));
 	}
@@ -331,7 +336,7 @@ int	heredoc_into_fd(char *body, t_args *args, t_shell *sh)
 static int	handle_input_redirection(t_lexical_token *tok, t_args *args,
 		t_shell *sh)
 {
-	if (tok->value && ft_strchr(tok->value, '\n'))
+	if (tok->type == TT_HEREDOC)
 	{
 		if (heredoc_into_fd(tok->value, args, sh))
 			return (1);
@@ -388,7 +393,7 @@ int	handle_redr(t_args *args, t_shell *sh)
 		result = proc_redr_errs(tok, sh);
 		if (result)
 			return (result);
-		if (tok->type == TT_REDIR_IN)
+		if (tok->type == TT_REDIR_IN || tok->type == TT_HEREDOC)
 			result = handle_input_redirection(tok, args, sh);
 		else if (tok->type == TT_REDIR_OUT)
 			result = handle_output_redirection(tok, args);
