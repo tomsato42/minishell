@@ -6,7 +6,7 @@
 #    By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/22 01:37:23 by teando            #+#    #+#              #
-#    Updated: 2025/04/28 20:59:28 by teando           ###   ########.fr        #
+#    Updated: 2025/04/29 22:50:24 by teando           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -60,11 +60,15 @@ v: f
 	$(MAKE) __v -j $(shell nproc)
 core: f
 	$(MAKE) __core -j $(shell nproc)
+lex: f
+	$(MAKE) __lex -j $(shell nproc)
+syn: f
+	$(MAKE) __syn -j $(shell nproc)
+sem: f	
+	$(MAKE) __sem -j $(shell nproc)
 debug: f
 	$(MAKE) __debug -j $(shell nproc)
 
-__build: OPT	:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
-__build: DEFINE	:= -DDEBUG_MODE=DEBUG_ALL
 __build: $(NAME)
 
 $(NAME): $(LIBFT) $(OBJ)
@@ -122,6 +126,18 @@ __v: $(NAME)
 __core: OPT		:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
 __core: DEFINE	:= -DDEBUG_MODE=DEBUG_CORE
 __core: $(NAME)
+
+__lex: OPT		:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
+__lex: DEFINE	:= -DDEBUG_MODE=DEBUG_LEX
+__lex: $(NAME)
+
+__syn: OPT		:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
+__syn: DEFINE	:= -DDEBUG_MODE=DEBUG_SYN
+__syn: $(NAME)
+
+__sem: OPT		:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
+__sem: DEFINE	:= -DDEBUG_MODE=DEBUG_SEM
+__sem: $(NAME)
 
 __debug: OPT 	:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
 __debug: DEFINE	:= -DDEBUG_MODE=DEBUG_ALL
