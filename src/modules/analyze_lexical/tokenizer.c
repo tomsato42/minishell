@@ -12,12 +12,6 @@
 
 #include "mod_lex.h"
 
-/**
- * @brief 括弧の数のチェックを行う
- *
- * @param sh 現在のシステム情報を保持するt_shell構造体へのポインタ
- * @return 括弧が閉じられていれば1 そうでなければ0
- */
 static int	count_paren(t_shell *sh)
 {
 	t_list			*tokens;
@@ -40,21 +34,6 @@ static int	count_paren(t_shell *sh)
 	return (l == r);
 }
 
-/**
- * @brief 入力されたソースラインをトークン化し、その構文を検証する
- *
- * @param sh 現在のシステム情報を保持するt_info構造体へのポインタ
- * @return トークン化および構文検証に成功した場合はE_NONEが返され、
- *         エラーが発生した場合は対応するステータスが返される
- *
- * @details
- * 1. sh->source_lineがNULLでないことを確認する
- * 2. リダイレクト記号の検証を行う
- * 3. tokenize_line関数を呼び出してソースラインをトークン化する
- * 4. トークン化に失敗した場合はステータスをE_SYNTAXに設定する
- * 5. 連続した括弧のチェックを行う
- * 6. すべての処理が成功した場合、E_NONEを返す
- */
 t_status	mod_lex(t_shell *sh)
 {
 	sh->token_list = NULL;

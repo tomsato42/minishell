@@ -6,7 +6,7 @@
 /*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 14:49:25 by teando            #+#    #+#             */
-/*   Updated: 2025/04/29 22:06:56 by teando           ###   ########.fr       */
+/*   Updated: 2025/05/10 22:57:03 by teando           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,6 @@ typedef struct s_shell	t_shell;
 typedef enum e_status	t_status;
 typedef struct s_ast	t_ast;
 
-/*
-** ============================================================================
-// ** ms_gc - Garbage Collection related functions
-** ============================================================================
-*/
 int						ms_gc_track(void *p, t_shell *sh);
 void					xfree_gc(void **p, t_shell *sh);
 void					*xmalloc_gcline(size_t size, t_shell *shell);
@@ -44,25 +39,13 @@ char					*ms_substr_r_gcli(char const *s, char delimiter,
 char					*ms_substr_l_gcli(const char *s, char delimiter,
 							t_shell *sh);
 
-/*
-** ============================================================================
-** ms_lexical - Token related functions
-** ============================================================================
-*/
 void					free_token(void *token);
 void					*copy_token(void *data, t_shell *sh);
 
-/*
-** ============================================================================
-** ms_env - Environment variable related functions
-** ============================================================================
-*/
-// key
 int						ms_isactivekey(const char *key);
 t_status				ms_partenvarg(char *key, const char *arg,
 							int *is_append, size_t *eq_pos);
 
-// value
 int						ms_isactivevalue(const char *value);
 char					*ms_escapevalue(const char *value, t_shell *shell);
 
@@ -73,29 +56,13 @@ t_status				ms_setenv_item(const char *key, const char *value,
 							t_shell *shell);
 t_status				ms_unset(const char *key, t_shell *shell);
 
-/*
-** ============================================================================
-** ms_ast - Abstract Syntax Tree related functions
-** ============================================================================
-*/
 void					free_ast(t_ast **ast);
 
-/*
-** ============================================================================
-** ms_fd - File descriptor related functions
-** ============================================================================
-*/
 void					ms_set_cloexec(int fd, t_shell *sh);
 void					set_cloexec_all(void);
 int						xclose(int *fd);
 int						xdup(int oldfd, t_shell *shell);
 int						xdup2(int *oldfd, int newfd, t_shell *shell);
-
-/*
-** ============================================================================
-** ms_path - Path resolution related functions
-** ============================================================================
-*/
 
 int						is_builtin(char *cmd);
 int						path_home(char path[], const char *src, int mode,
@@ -104,21 +71,11 @@ int						path_relative(char path[], const char *src, int mode,
 							t_shell *shell);
 int						path_resolve(char **in, t_shell *shell);
 
-/*
-** ============================================================================
-** ms_system - System related functions
-** ============================================================================
-*/
 pid_t					xfork(t_shell *shell);
 void					xfree(void **ptr);
 void					*xmalloc(size_t size, t_shell *shell);
 int						xpipe(int pipfds[], t_shell *shell);
 
-/*
-** ============================================================================
-** ms_string - String manipulation related functions
-** ============================================================================
-*/
 int						is_quoted(const char *s);
 int						skip_quoted_word(const char *line, size_t *pos,
 							t_shell *shell);
@@ -148,11 +105,6 @@ char					*xstrjoin_free(char const *s1, char const *s2,
 char					*xstrjoin_free2(char const *s1, char const *s2,
 							t_shell *shell);
 
-/*
-** ============================================================================
-** ms_lst - List manipulation related functions
-** ============================================================================
-*/
 void					*ms_listshift(t_list **list);
 int						ms_lstiter(t_list *lst, int (*f)(t_list **, int,
 								t_shell *), t_shell *shell);

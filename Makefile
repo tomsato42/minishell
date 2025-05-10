@@ -6,7 +6,7 @@
 #    By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/02/22 01:37:23 by teando            #+#    #+#              #
-#    Updated: 2025/05/10 22:28:47 by teando           ###   ########.fr        #
+#    Updated: 2025/05/10 22:59:58 by teando           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,17 +17,14 @@ OPT			:= -O2
 RM			:= rm -rf
 DEFINE		:= -DDEBUG_MODE=DEBUG_NONE
 
-# ディレクトリ設定
 ROOT_DIR	:= .
 SRC_DIR		:= $(ROOT_DIR)/src
 INC_DIR		:= $(ROOT_DIR)/inc
 OBJ_DIR		:= $(ROOT_DIR)/obj
 LIBFT_DIR	:= $(ROOT_DIR)/src/lib/libft
 
-# インクルードフラグ
 IDFLAGS		:= -I$(INC_DIR) -I$(LIBFT_DIR)
 
-# 環境依存
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 	LIBFT		:= $(LIBFT_DIR)/libft_mac.a
@@ -39,7 +36,6 @@ else
 	IDFLAGS		+= -I/usr/include/readline
 endif
 
-# source files
 SRC	:= \
 	$(addprefix $(SRC_DIR)/, \
 		core/shell_init.c \
@@ -148,25 +144,7 @@ SRC	:= \
 	)
 OBJ		:= $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC))
 
-# Index
-all:
-	$(MAKE) __build -j $(shell nproc)
-v: f
-	$(MAKE) __v -j $(shell nproc)
-core: f
-	$(MAKE) __core -j $(shell nproc)
-lex: f
-	$(MAKE) __lex -j $(shell nproc)
-syn: f
-	$(MAKE) __syn -j $(shell nproc)
-sem: f	
-	$(MAKE) __sem -j $(shell nproc)
-debug: f
-	$(MAKE) __debug -j $(shell nproc)
-none_prompt: f
-	$(MAKE) __none_prompt -j $(shell nproc)
-
-__build: $(NAME)
+all: $(NAME)
 
 $(NAME): $(LIBFT) $(OBJ)
 	$(CC) $(CFLAGS) $(OPT) $(OBJ) $(LIBFT) $(LFLAGS) $(IDFLAGS) $(DEFINE) -o $(NAME)
@@ -183,7 +161,7 @@ $(NAME): $(LIBFT) $(OBJ)
 	@echo "[Debug flags/DEFINE]: $(DEFINE)"
 	@echo "====================="
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(LIBFT_DIR)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(OPT) $(IDFLAGS) $(DEFINE) -fPIC -MMD -MP -c $< -o $@
 
@@ -194,9 +172,7 @@ c:
 	$(RM) $(OBJ_DIR)
 f: c
 	$(RM) $(NAME)
-r:
-	$(MAKE) f
-	$(MAKE) __build -j $(shell nproc)
+r: f all
 
 clean:
 	$(RM) $(OBJ_DIR)
@@ -206,52 +182,41 @@ fclean: clean
 	$(RM) $(NAME)
 	$(MAKE) -C $(LIBFT_DIR) fclean
 
-re:
-	$(MAKE) fclean
-	$(MAKE) __build -j $(shell nproc)
+re: fclean all
 
 # =======================
 # == PRODUCTION =========
 # =======================
 
-__v: $(NAME)
+v: f $(NAME)
 
 # =======================
 # == DEBUG =============
 # =======================
 
-__core: OPT		:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
-__core: DEFINE	:= -DDEBUG_MODE=DEBUG_CORE
-__core: $(NAME)
+core: OPT		:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
+core: DEFINE	:= -DDEBUG_MODE=DEBUG_CORE
+core: $(NAME)
 
-__lex: OPT		:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
-__lex: DEFINE	:= -DDEBUG_MODE=DEBUG_LEX
-__lex: $(NAME)
+lex: OPT		:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
+lex: DEFINE	:= -DDEBUG_MODE=DEBUG_LEX
+lex: $(NAME)
 
-__syn: OPT		:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
-__syn: DEFINE	:= -DDEBUG_MODE=DEBUG_SYN
-__syn: $(NAME)
+syn: OPT		:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
+syn: DEFINE	:= -DDEBUG_MODE=DEBUG_SYN
+syn: $(NAME)
 
-__sem: OPT		:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
-__sem: DEFINE	:= -DDEBUG_MODE=DEBUG_SEM
-__sem: $(NAME)
+sem: OPT		:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
+sem: DEFINE	:= -DDEBUG_MODE=DEBUG_SEM
+sem: $(NAME)
 
-__debug: OPT 	:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
-__debug: DEFINE	:= -DDEBUG_MODE=DEBUG_ALL
-__debug: $(NAME)
-
-__none_prompt: DEFINE	:= -DDEBUG_MODE=DEBUG_NO_PROMPT
-__none_prompt: $(NAME)
+debug: OPT		:= -g -fsanitize=address -O1 -fno-omit-frame-pointer
+debug: DEFINE	:= -DDEBUG_MODE=DEBUG_ALL
+debug: f $(NAME)
 
 # =======================
 # == Submodule Targets ==
 # =======================
-
-$(LIBFT_DIR)/libft.h:
-	git submodule update --remote --init --recursive
-
-sub:
-	git submodule update --remote
 
 norm:
 	@norminette $(SRC) $(INC_DIR)

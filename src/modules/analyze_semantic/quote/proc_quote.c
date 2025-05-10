@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   proc_quote.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tomsato <tomsato@student.42tokyo.jp>       +#+  +:+       +#+        */
+/*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 20:03:19 by tomsato           #+#    #+#             */
-/*   Updated: 2025/04/29 19:43:39 by tomsato          ###   ########.fr       */
+/*   Updated: 2025/05/10 23:22:35 by teando           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,10 @@ int	proc_quote(t_list **lst, int index, t_shell *sh)
 
 	(void)index;
 	tok = (*lst)->data;
-	tmp = replace_with_unquoted(tok->value, sh);
+	if (tok->type != TT_HEREDOC)
+		tmp = replace_with_unquoted(tok->value, sh);
+	else
+		tmp = ms_strdup_gcli(tok->value, sh);
 	xfree((void **)&tok->value);
 	tok->value = ms_strdup(tmp, sh);
 	return (0);

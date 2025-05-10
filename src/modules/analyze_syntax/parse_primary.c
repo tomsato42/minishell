@@ -12,11 +12,6 @@
 
 #include "mod_syn.h"
 
-/**
- * Append a redirection token to the AST node
- * Returns false if a redirection was processed (to continue collecting)
- * Returns true if no redirection was found (to stop collecting)
- */
 static int	append_redir(t_pl *pl, t_ast *n, t_shell *sh)
 {
 	t_lexical_token	*tok;
@@ -35,9 +30,6 @@ static int	append_redir(t_pl *pl, t_ast *n, t_shell *sh)
 	return (0);
 }
 
-/**
- * Parse a command (redirections and words)
- */
 static t_ast	*parse_cmd(t_pl *pl, t_shell *sh)
 {
 	t_ast			*n;
@@ -64,11 +56,6 @@ static t_ast	*parse_cmd(t_pl *pl, t_shell *sh)
 	return (n);
 }
 
-/**
- * Parse a primary expression (command or subshell)
- * ========== Primary (cmd or '(' list ')') ==========
- *  primary ::= cmd | '(' list ')'
- */
 t_ast	*parse_primary(t_pl *pl, t_shell *sh)
 {
 	t_lexical_token	*tok;
