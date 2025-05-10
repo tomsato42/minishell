@@ -6,7 +6,7 @@
 /*   By: tomsato <tomsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/26 20:33:56 by tomsato           #+#    #+#             */
-/*   Updated: 2025/05/07 16:57:07 by tomsato          ###   ########.fr       */
+/*   Updated: 2025/05/10 14:13:47 by tomsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,8 @@ int	proc_redr_errs(t_lexical_token *data, t_shell *shell)
 {
 	if (!data->value)
 		return (E_SYSTEM);
-	if (*data->value == '\0' && data->type != TT_HEREDOC)
+	if (data->type != TT_HEREDOC && (*data->value == '\0'
+			|| ft_strchr(data->value, ' ')))
 		return (ft_dprintf(2, "minishell: ambiguous redirect\n"),
 			E_AMBIGUOUS_REDIR);
 	if (!ft_strchr(data->value, '\n'))

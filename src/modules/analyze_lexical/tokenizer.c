@@ -1,14 +1,14 @@
-/******************************************************************************/
+/* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   tokenizer.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: tomsato <tomsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/10 14:06:12 by teando            #+#    #+#             */
-/*   Updated: 2025/05/10 07:27:28 by teando           ###   ########.fr       */
+/*   Updated: 2025/05/10 14:13:29 by tomsato          ###   ########.fr       */
 /*                                                                            */
-/******************************************************************************/
+/* ************************************************************************** */
 
 #include "mod_lex.h"
 
@@ -93,8 +93,8 @@ t_status	mod_lex(t_shell *sh)
 	sh->status = E_NONE;
 	if (!sh->source_line)
 		return (sh->status = E_SYNTAX);
-	// if (!validate_input(sh))
-	// 	return (sh->status = E_SYNTAX);
+	/* if (!validate_input(sh))*/
+	/* 	return (sh->status = E_SYNTAX);*/
 	if (!tokenize_line(sh))
 		return (sh->status = E_SYNTAX);
 	if (!count_paren(sh))

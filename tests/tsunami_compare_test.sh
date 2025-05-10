@@ -7,10 +7,10 @@ YELLOW="\033[0;33m"
 BLUE="\033[0;34m"
 RESET="\033[0m"
 
-TEST_FILE="/Users/atomboy/42Toybox/0-Cursus/33-modularshell/tests/tsunami_testcases"
-MINISHELL="/Users/atomboy/42Toybox/0-Cursus/33-modularshell/minishell"
-OUTPUT_DIR="/Users/atomboy/42Toybox/0-Cursus/33-modularshell/tests/out"
-PLAYGROUND_DIR="/Users/atomboy/42Toybox/0-Cursus/33-modularshell/playground"
+TEST_FILE="/home/tomsato/space/42-minishell_v2-1/tests/tsunami_testcases"
+MINISHELL="/home/tomsato/space/42-minishell_v2-1/minishell"
+OUTPUT_DIR="/home/tomsato/space/42-minishell_v2-1/tests/out"
+PLAYGROUND_DIR="/home/tomsato/space/42-minishell_v2-1/playground"
 TMP_DIR="$PLAYGROUND_DIR/tmp"
 LEAK_CHECK=0
 

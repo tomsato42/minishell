@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: teando <teando@student.42tokyo.jp>         +#+  +:+       +#+        */
+/*   By: tomsato <tomsato@student.42.jp>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 23:11:41 by teando            #+#    #+#             */
-/*   Updated: 2025/05/10 13:48:56 by teando           ###   ########.fr       */
+/*   Updated: 2025/05/10 14:12:27 by tomsato          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,8 @@ static t_status	__put_export(t_shell *sh)
 t_status	__export(int argc, char **argv, t_shell *sh)
 {
 	int	i;
-	int status;
-	
+	int	status;
+
 	status = 0;
 	if (argc == 1)
 		return (__put_export(sh));
